@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>背个啥 · AI 背包导购助手 Demo</title>
+<style>
+:root{color-scheme:light;--bg:#faf8f5;--card:#fff;--ink:#2b2724;--mut:#8a8178;
+--acc:#b4532a;--accbg:#fdf2ec;--bd:#e8e2da;--ok:#3f7d4e;--okbg:#f0f7f1;--warn:#9a6b1e;--warnbg:#fdf6e7}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:0 0 60px}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}
+header{border-bottom:1px solid var(--bd);background:var(--card);padding:22px 0;margin-bottom:28px}
+h1{font-size:20px;letter-spacing:-.01em}
+h1 span{color:var(--acc)}
+.sub{color:var(--mut);font-size:13px;margin-top:5px}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:22px;margin-bottom:16px}
+.panel.hid{display:none}
+.lbl{font-size:12px;color:var(--mut);letter-spacing:.06em;margin-bottom:10px;font-weight:600}
+textarea{width:100%;border:1px solid var(--bd);border-radius:9px;padding:13px;font:15px/1.6 inherit;resize:vertical;min-height:84px;background:#fcfbf9;color:var(--ink)}
+textarea:focus{outline:none;border-color:var(--acc);background:#fff}
+.egs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}
+.eg{border:1px dashed var(--bd);background:transparent;border-radius:20px;padding:6px 13px;font:13px inherit;color:var(--mut);cursor:pointer}
+.eg:hover{border-color:var(--acc);color:var(--acc);border-style:solid}
+button{font-family:inherit}
+.btn{background:var(--acc);color:#fff;border:0;border-radius:9px;padding:11px 24px;font-size:15px;cursor:pointer;font-weight:500}
+.btn:hover{opacity:.88}
+.btn.gh{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+.btn.sm{padding:7px 15px;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:9px;margin:4px 0 18px}
+.chip{border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:13.5px;background:#fcfbf9;display:flex;align-items:center;gap:7px}
+.chip b{font-weight:600}
+.chip.inf{border-style:dashed;background:#fff;color:var(--mut)}
+.chip .tag{font-size:11px;background:var(--warnbg);color:var(--warn);padding:1px 6px;border-radius:4px}
+.chip .x{cursor:pointer;color:var(--mut);font-size:15px;line-height:1;padding:0 2px}
+.chip .x:hover{color:var(--acc)}
+.note{font-size:13px;color:var(--mut);background:#fcfbf9;border-left:2px solid var(--bd);padding:9px 13px;border-radius:0 6px 6px 0;margin:14px 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:13px;margin:6px 0 4px}
+.qc{border:1px solid var(--bd);border-radius:11px;padding:15px;background:#fcfbf9}
+.qc h4{font-size:14.5px;margin-bottom:3px}
+.qc .why{font-size:12px;color:var(--mut);margin-bottom:11px}
+.opts{display:flex;flex-direction:column;gap:7px}
+.opt{text-align:left;border:1px solid var(--bd);background:#fff;border-radius:7px;padding:9px 11px;font-size:13.5px;cursor:pointer;color:var(--ink);line-height:1.45}
+.opt:hover{border-color:var(--acc);background:var(--accbg)}
+.opt.skip{border-style:dashed;color:var(--mut)}
+.prod{border:1px solid var(--bd);border-radius:11px;padding:17px;margin-bottom:13px;background:#fcfbf9}
+.prod.one{border-color:var(--acc);background:#fff;box-shadow:0 1px 0 var(--accbg),0 0 0 1px var(--accbg)}
+.ph{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.pn{font-size:16px;font-weight:600}
+.rk{font-size:11px;background:var(--accbg);color:var(--acc);padding:2px 8px;border-radius:4px;font-weight:600}
+.pp{font-size:17px;font-weight:600;color:var(--acc);white-space:nowrap}
+.spec{font-size:12.5px;color:var(--mut);margin:7px 0 12px;font-variant-numeric:tabular-nums}
+.concl{font-size:14px;background:var(--okbg);color:var(--ok);padding:8px 12px;border-radius:7px;margin-bottom:11px}
+.hit{font-size:13.5px;margin:5px 0;padding-left:16px;position:relative}
+.hit:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:700}
+.hit code{font-size:11.5px;color:var(--mut);background:#f3efe9;padding:1px 5px;border-radius:3px}
+.cost{font-size:13.5px;margin-top:11px;padding:9px 12px;background:var(--warnbg);color:var(--warn);border-radius:7px}
+.rej{font-size:13px;color:var(--mut);border:1px dashed var(--bd);border-radius:9px;padding:13px;margin-top:4px}
+.rej b{color:var(--ink)}
+.adj{display:flex;flex-wrap:wrap;gap:9px;margin-top:6px}
+.cf{background:var(--warnbg);border:1px solid #ecd9ae;border-radius:10px;padding:16px;margin-bottom:14px}
+.cf h4{font-size:14.5px;color:var(--warn);margin-bottom:7px}
+.cf p{font-size:13.5px;margin-bottom:11px}
+pre{background:#2b2724;color:#e8e2da;padding:15px;border-radius:9px;font:12px/1.6 ui-monospace,Menlo,monospace;overflow-x:auto}
+.dbg{margin-top:16px}
+.dbg summary{cursor:pointer;font-size:12.5px;color:var(--mut);padding:7px 0}
+.dbg summary:hover{color:var(--acc)}
+.un{font-size:12.5px;color:var(--warn);background:var(--warnbg);padding:8px 12px;border-radius:7px;margin:10px 0}
+footer{text-align:center;font-size:12px;color:var(--mut);margin-top:34px;line-height:1.9}
+@media(max-width:600px){.cards{grid-template-columns:1fr}.wrap{padding:0 14px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<h1>背个啥 <span>·</span> AI 背包导购助手</h1>
+<div class="sub">模糊需求解析 · 动态追问 · 可溯源推荐 ｜ 单文件离线 Demo</div>
+</div></header>
+
+<div class="wrap">
+
+<div class="panel" id="p1">
+  <div class="lbl">说说你想要什么样的包，不用管参数</div>
+  <textarea id="q" placeholder="像跟朋友说话那样写就行，比如「想要适合夏天、轻一点的双肩包」"></textarea>
+  <div class="egs" id="egs"></div>
+  <button class="btn" onclick="go()">帮我找</button>
+</div>
+
+<div class="panel hid" id="p2">
+  <div class="lbl">我这样理解你的需求，不对的地方点 × 就能去掉</div>
+  <div class="chips" id="chips"></div>
+  <div id="unmapped"></div>
+  <div class="note" id="n2"></div>
+  <button class="btn" onclick="next()">没问题，继续</button>
+  <button class="btn gh" onclick="reset()">重新说</button>
+</div>
+
+<div class="panel hid" id="p3">
+  <div class="lbl" id="l3">再确认两件事就能出结果</div>
+  <div class="cards" id="cards"></div>
+  <div class="note">卡片是按「还缺哪个字段 × 这个字段能砍掉多少候选」动态挑的，一次最多 3 张。每张都带「你帮我选」的出口，不会卡住流程。</div>
+</div>
+
+<div class="panel hid" id="p4">
+  <div class="lbl" id="l4">为你挑了 3 款</div>
+  <div id="conflict"></div>
+  <div id="list"></div>
+  <div id="rejected"></div>
+  <div class="lbl" style="margin-top:22px">都不太满意？只调一个维度</div>
+  <div class="adj">
+    <button class="btn gh sm" onclick="adj('light')">再轻一点</button>
+    <button class="btn gh sm" onclick="adj('cheap')">便宜一点</button>
+    <button class="btn gh sm" onclick="adj('big')">要更能装</button>
+    <button class="btn gh sm" onclick="adj('style')">换个风格</button>
+    <button class="btn gh sm" onclick="reset()">重新开始</button>
+  </div>
+  <details class="dbg"><summary>▸ 查看解析出的筛选条件 JSON（演示「模型只输出条件，商品由检索得出」）</summary>
+    <pre id="json"></pre>
+  </details>
+</div>
+
+<footer>
+演示用商品库共 <b id="cnt"></b> 个 SKU，属性字段为示例数据。<br>
+语义解析层为规则引擎，模拟方案文档 6.2 节提示词在真实环境下由大模型完成的工作，输出的 JSON 结构与之一致。
+</footer>
+</div>
+
+<script>
+/* ---------- 示例商品库：24 个 SKU ----------
+   [名称,品牌,价格,容量L,自重kg,笔记本寸(0=不适配),可登机,防水(0无/1泼水/2防雨/3全防水),
+    风格,透气1-5,分隔1-5,主色,背负系统,面料] */
+const RAW=[
+["轻羽 20 气流版","素行",179,20,0.45,14,1,1,"通勤简约",5,2,"黑","悬浮网眼背板","20D 尼龙"],
+["轻羽 18","素行",149,18,0.38,13,1,1,"通勤简约",4,2,"灰","网眼透气背板","20D 尼龙"],
+["凉背 22","风格物",239,22,0.52,14,1,2,"通勤简约",5,3,"藏青","悬浮网眼背板","210D 尼龙"],
+["日行 21","木白",199,21,0.62,14,1,1,"学院日系",3,3,"大地色","加厚海绵背板","水洗帆布"],
+["通勤者 Lite","衡器",329,19,0.49,15.6,1,2,"通勤简约",4,4,"黑","悬浮网眼背板","420D 尼龙"],
+["云肩 20","衡器",459,20,0.41,14,1,2,"通勤简约",5,3,"灰","悬浮网眼背板","超轻防撕尼龙"],
+["商旅 24","稳途",389,24,0.86,15.6,1,2,"通勤简约",3,5,"黑","加厚海绵背板","900D 涤纶"],
+["硬核 17","稳途",549,28,1.15,17,1,2,"通勤简约",3,5,"黑","支架背板","1000D 尼龙"],
+["工位 17 Pro","砺石",739,30,1.28,17,0,3,"户外机能",4,5,"黑","支架背板","X-Pac 复合"],
+["文档家 15","木白",259,23,0.79,15.6,1,1,"学院日系",2,4,"藏青","加厚海绵背板","水洗帆布"],
+["书包君 26","木白",169,26,0.72,14,1,1,"学院日系",3,4,"大地色","加厚海绵背板","水洗帆布"],
+["开学季 28","素行",139,28,0.68,14,1,0,"学院日系",2,3,"亮色","普通海绵背板","涤纶"],
+["双仓 25","风格物",289,25,0.75,15.6,1,2,"街头潮流",3,5,"黑","网眼透气背板","600D 涤纶"],
+["行者 35","稳途",499,35,1.05,15.6,1,2,"户外机能",4,5,"黑","支架背板","420D 尼龙"],
+["三日 38","砺石",629,38,1.18,15.6,1,3,"户外机能",4,5,"大地色","支架背板","X-Pac 复合"],
+["周末 32","风格物",359,32,0.92,14,1,1,"通勤简约",3,4,"灰","加厚海绵背板","600D 涤纶"],
+["登机 40","稳途",789,40,1.32,17,1,2,"户外机能",3,5,"藏青","支架背板","1000D 尼龙"],
+["山脊 30","砺石",569,30,0.88,0,1,3,"户外机能",5,3,"大地色","悬浮网眼背板","高强尼龙"],
+["疾风 22","砺石",299,22,0.33,0,1,1,"户外机能",5,2,"亮色","悬浮网眼背板","15D 尼龙"],
+["越野 28","砺石",429,28,0.71,0,1,2,"户外机能",5,3,"黑","悬浮网眼背板","高强尼龙"],
+["轻跑 14","素行",119,14,0.29,0,1,1,"户外机能",5,1,"亮色","网眼透气背板","15D 尼龙"],
+["极简 16","衡器",269,16,0.36,13,1,1,"通勤简约",4,2,"黑","网眼透气背板","210D 尼龙"],
+["都市 20","风格物",899,20,0.68,14,1,2,"街头潮流",2,3,"黑","加厚海绵背板","牛津布拼皮"],
+["潮版 24","风格物",449,24,0.81,15.6,1,1,"街头潮流",3,3,"亮色","普通海绵背板","600D 涤纶"]];
+const K=["name","brand","price","capacity_l","self_weight_kg","laptop_fit_inch","cabin_ok",
+"waterproof_level","style","breathability","compartment_richness","color_family","back_system","material"];
+const DB=RAW.map((r,i)=>{const o={id:"BP"+(101+i)};K.forEach((k,j)=>o[k]=r[j]);return o});
+const WP=["无防水处理","泼水","防雨","全防水"];
+const EGS=["想要适合夏天、轻一点的双肩包","每天背电脑通勤，夏天不想闷汗",
+"大学开学，能装书还要好看","出差三天，想只带一个包","300 以内、能装 17 寸、500 克以下",
+"想要个大包，耐磨一点"];
+/* ---------- 会话状态 ---------- */
+let S,round,asked;
+const SCW={"日常通勤":0.7,"校园通学":0.8,"短途差旅":1.0,"户外徒步":1.2,"运动健身":0.6};
+function blank(){return{hard:{price:{min:null,max:null},capacity_l:{min:null,max:null},
+ self_weight_kg:{max:null},laptop_fit_inch:null,cabin_ok:null,waterproof_level:null},
+ soft:{style:[],breathability_boost:false,compartment_boost:false,color_family:[]},
+ scene_hypothesis:null,confidence:{},ambiguity:[],raw_unmapped:[]}}
+
+/* ---------- 语义解析：规则引擎，模拟 6.2 节提示词的输出 ---------- */
+const UNMAP=[[/耐磨|结实|耐用|扛造/,"耐磨/结实 —— 商品库暂无耐久度字段，无法筛选"],
+ [/挂滑板|挂板|绑三脚架|插水壶/,"外挂需求 —— schema 暂无外挂系统字段"],
+ [/室友|朋友|同事|同学.{0,3}(牌子|那款|那个)/,"他人同款 —— 无指向性商品信息"],
+ [/显瘦|不显胖|背着好看|衬人/,"上身效果 —— 需要实拍而非参数"]];
+
+function parse(t){
+ const s=blank(),c=s.confidence,h=s.hard,f=s.soft;
+ const has=(...a)=>a.some(x=>t.includes(x));
+ /* 场景 */
+ if(has("通勤","上班","上下班","写字楼"))s.scene_hypothesis="日常通勤";
+ else if(has("上学","开学","学生","上课","校园","教室","装书"))s.scene_hypothesis="校园通学";
+ else if(has("出差","旅行","旅游","短途","三天","两天","过夜"))s.scene_hypothesis="短途差旅";
+ else if(has("徒步","登山","爬山","露营","户外"))s.scene_hypothesis="户外徒步";
+ else if(has("健身","跑步","运动","球场","游泳"))s.scene_hypothesis="运动健身";
+ if(s.scene_hypothesis)c.scene_hypothesis=has("通勤","上班","出差","上学","徒步")?0.9:0.7;
+ else if(has("夏天","夏季")&&has("轻","不重")){s.scene_hypothesis="日常通勤";c.scene_hypothesis=0.55}
+ /* 透气（夏天的真实诉求是背负透气，不是面料厚薄） */
+ if(has("夏天","夏季","闷","出汗","透气","热","不透风")){f.breathability_boost=true;c.breathability=0.85}
+ /* 重量：先认明确数值，没有数值再处理相对词（相对词必须先锚定场景） */
+ const wg=t.match(/(\d+)\s*(?:克|g\b|G\b)/),wk=t.match(/(\d+(?:\.\d+)?)\s*(?:公斤|千克|kg|KG)/);
+ if(wg)h.self_weight_kg.max=+wg[1]/1000;
+ else if(wk)h.self_weight_kg.max=+wk[1];
+ else if(has("轻","不重","不想太重","减负")){
+  h.self_weight_kg.max=SCW[s.scene_hypothesis]||0.7;
+  c.self_weight_kg=s.scene_hypothesis?0.65:0.45}
+ /* 容量：只在有明确依据时才填 */
+ let m=t.match(/(\d+)\s*(升|L|l)\b/);
+ if(m){const v=+m[1];h.capacity_l={min:v-3,max:v+3}}
+ else if(has("出差","三天","两天","过夜","当行李")){h.capacity_l={min:30,max:40};c.capacity_l=0.7}
+ else if(has("装书","书","教材","资料")){h.capacity_l={min:24,max:null};f.compartment_boost=true;c.capacity_l=0.6}
+ else if(has("能装","大容量","装得多")&&!/\d+\s*(?:寸|英寸)/.test(t)){
+  h.capacity_l={min:26,max:null};c.capacity_l=0.6}
+ /* 笔记本：说了尺寸就算，不一定要带「电脑」二字 */
+ const z=t.match(/(13|14|15\.6|15|16|17)\s*(?:寸|英寸)/);
+ if(z||has("电脑","笔记本","mac","MacBook","Mac")){
+  h.laptop_fit_inch=z?((z[1]=="15"||z[1]=="16")?15.6:+z[1]):14;
+  if(!z)c.laptop_fit_inch=0.5}
+ /* 防水与登机 */
+ if(has("防水","下雨","雨天","雨季"))h.waterproof_level="防雨";
+ else if(has("骑车","骑行","电动车","单车")){h.waterproof_level="泼水";c.waterproof_level=0.6}
+ if(has("登机","飞机","航班"))h.cabin_ok=true;
+ /* 价格 */
+ let pm;
+ if(pm=t.match(/(\d+)\s*(?:元|块)?\s*(?:以内|以下|之内|封顶)/))h.price.max=+pm[1];
+ else if(pm=t.match(/(\d+)\s*[-–~到至]\s*(\d+)/)){h.price.min=+pm[1];h.price.max=+pm[2]}
+ else if(pm=t.match(/预算\s*(\d+)|(\d+)\s*(?:元|块)?\s*左右/)){
+  const v=+(pm[1]||pm[2]);h.price.min=Math.round(v*.7);h.price.max=Math.round(v*1.2);c.price=0.7}
+ else if(has("便宜","学生党","预算有限","平价","不贵","百元")){h.price.max=200;c.price=0.6}
+ else if(has("高端","品质","贵点","好一点的"))h.price.min=500;
+ /* 风格 */
+ if(has("简约","极简","低调","商务","正式"))f.style.push("通勤简约");
+ if(has("机能","户外风","战术"))f.style.push("户外机能");
+ if(has("日系","学院","文艺","复古"))f.style.push("学院日系");
+ if(has("潮","街头","酷","个性"))f.style.push("街头潮流");
+ if(!f.style.length&&has("好看","颜值","时尚","高级感"))
+  s.ambiguity.push("好看 —— 需要确认是哪一种风格，不同风格的「好看」完全不同");
+ /* 颜色 */
+ const CM=[[/黑/,"黑"],[/灰/,"灰"],[/藏青|深蓝|蓝/,"藏青"],[/卡其|米|棕|大地|咖/,"大地色"],
+  [/白|亮|鲜艳|粉|黄|红|绿/,"亮色"]];
+ CM.forEach(([r,v])=>{if(r.test(t)&&!f.color_family.includes(v))f.color_family.push(v)});
+ /* 歧义 */
+ if(/大包|大一点|大点的/.test(t)&&!m)
+  s.ambiguity.push("大 —— 是能装得多（容量），还是看着有存在感（外观）");
+ /* 无法映射的原话：必须暴露，不能假装理解 */
+ UNMAP.forEach(([r,l])=>{if(r.test(t))s.raw_unmapped.push(l)});
+ return s}
+
+/* ---------- 槽位回显 ---------- */
+const H=s=>s.replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+const rng=(a,b,u)=>a==null&&b==null?"不限":a==null?b+" "+u+"以内":b==null?a+" "+u+"以上":a+"–"+b+" "+u;
+function chipList(){
+ const h=S.hard,f=S.soft,c=S.confidence,out=[];
+ const add=(k,lab,val,cf)=>out.push({k,lab,val,cf:cf===undefined?null:cf});
+ add("cat","你要","双肩包");
+ if(S.scene_hypothesis)add("scene","主要用来",S.scene_hypothesis,c.scene_hypothesis);
+ if(f.breathability_boost)add("bre","特别在意","背部透气",c.breathability);
+ if(h.self_weight_kg.max)add("w","重量不超过",h.self_weight_kg.max+" kg",c.self_weight_kg);
+ if(h.capacity_l.min||h.capacity_l.max)add("cap","容量",
+  rng(h.capacity_l.min,h.capacity_l.max,"L"),c.capacity_l);
+ if(h.laptop_fit_inch)add("lap","要装得下",h.laptop_fit_inch+" 寸电脑",c.laptop_fit_inch);
+ if(h.price.min||h.price.max)add("p","预算",rng(h.price.min,h.price.max,"元"),c.price);
+ if(h.waterproof_level)add("wp","防水",h.waterproof_level,c.waterproof_level);
+ if(h.cabin_ok)add("cab","需要","能登机");
+ if(f.style.length)add("st","风格",f.style.join("/"));
+ if(f.color_family.length)add("col","颜色",f.color_family.join("/"));
+ if(f.compartment_boost)add("cmp","希望","分隔多一些",0.7);
+ return out}
+function renderConfirm(){
+ const L=chipList();
+ document.getElementById("chips").innerHTML=L.map(o=>{
+  const inf=o.cf!==null;
+  return `<span class="chip${inf?" inf":""}"><b>${o.lab}</b> ${H(String(o.val))}`+
+   (inf?`<span class="tag">我猜的 ${Math.round(o.cf*100)}%</span>`:"")+
+   (o.k=="cat"?"":`<span class="x" onclick="drop('${o.k}')" title="去掉">×</span>`)+`</span>`}).join("");
+ const un=[...S.ambiguity,...S.raw_unmapped];
+ document.getElementById("unmapped").innerHTML=un.length?
+  `<div class="un"><b>这几处我没敢自己定：</b><br>${un.map(H).join("<br>")}</div>`:"";
+ const low=L.filter(o=>o.cf!==null&&o.cf<0.6).length;
+ document.getElementById("n2").innerHTML="虚线框的标签是我推断的，不是你说的。"+
+  (low?`其中 ${low} 项置信度低于 60%，建议先确认。`:"")+
+  "<br>这一步的作用是把纠错成本从「推完才发现不对」提前到「出结果前点一下」。";
+}
+function drop(k){const h=S.hard,f=S.soft,c=S.confidence;
+ ({scene:()=>{S.scene_hypothesis=null;delete c.scene_hypothesis},
+  bre:()=>{f.breathability_boost=false},
+  w:()=>{h.self_weight_kg.max=null},
+  cap:()=>{h.capacity_l={min:null,max:null}},
+  lap:()=>{h.laptop_fit_inch=null},
+  p:()=>{h.price={min:null,max:null}},
+  wp:()=>{h.waterproof_level=null},
+  cab:()=>{h.cabin_ok=null},
+  st:()=>{f.style=[]},
+  col:()=>{f.color_family=[]},
+  cmp:()=>{f.compartment_boost=false}}[k]||(()=>{}))();
+ renderConfirm()}
+
+/* ---------- 动态卡片：按「缺失 × 信息增益」挑，最多 3 张 ---------- */
+const CARDS={
+ load:{t:"你平时要装什么？",w:"用具体物品代替升数——容量是最强的筛选维度，但也是用户最答不出的参数",
+  o:[["电脑 + A4 本子，当天通勤",()=>{S.hard.capacity_l={min:18,max:26};if(!S.hard.laptop_fit_inch)S.hard.laptop_fit_inch=14}],
+     ["只装水、伞、充电宝",()=>{S.hard.capacity_l={min:12,max:20}}],
+     ["两三天短途的衣物",()=>{S.hard.capacity_l={min:30,max:40};S.soft.compartment_boost=true}],
+     ["书和教材，分量不轻",()=>{S.hard.capacity_l={min:24,max:32};S.soft.compartment_boost=true}]]},
+ price:{t:"预算大概在哪一档？",w:"选区间几乎零成本，问具体数字用户要犹豫",
+  o:[["200 元以内",()=>{S.hard.price={min:null,max:200}}],
+     ["200–400 元",()=>{S.hard.price={min:200,max:400}}],
+     ["400–800 元",()=>{S.hard.price={min:400,max:800}}],
+     ["800 元以上，要好的",()=>{S.hard.price={min:800,max:null}}]]},
+ lap:{t:"电脑是多大的？",w:"装不进去是功能性失败，必须问准",
+  o:[["13 寸",()=>{S.hard.laptop_fit_inch=13}],["14 寸",()=>{S.hard.laptop_fit_inch=14}],
+     ["15.6 寸",()=>{S.hard.laptop_fit_inch=15.6}],["17 寸",()=>{S.hard.laptop_fit_inch=17}]]},
+ big:{t:"你说的「大」是哪一种大？",w:"一词多义不靠猜——两个意思对应完全不同的商品，直接把选项给出来",
+  o:[["能装得多（容量大）",()=>{S.hard.capacity_l={min:28,max:null};S.soft.compartment_boost=true}],
+     ["看着有存在感（外观显大）",()=>{S.hard.capacity_l={min:20,max:28};
+      if(!S.soft.style.length)S.soft.style=["街头潮流"]}]]},
+ style:{t:"更想要哪种感觉？",w:"风格是视觉概念，实际产品里这里应该放四张实拍图",
+  o:[["通勤简约 · 干净利落",()=>{S.soft.style=["通勤简约"]}],
+     ["户外机能 · 耐造能装",()=>{S.soft.style=["户外机能"]}],
+     ["学院日系 · 温和文艺",()=>{S.soft.style=["学院日系"]}],
+     ["街头潮流 · 有存在感",()=>{S.soft.style=["街头潮流"]}]]}};
+const SKIPDEF={load:["按通勤 18–26L 估",()=>{S.hard.capacity_l={min:18,max:26}}],
+ big:["按容量大来理解",()=>{S.hard.capacity_l={min:28,max:null}}],
+ price:["按 400 元以内估",()=>{S.hard.price={min:null,max:400}}],
+ lap:["按 14 寸估",()=>{S.hard.laptop_fit_inch=14}],
+ style:["风格先不限制",()=>{}]};
+let CUR=[];
+function pickCards(){
+ const h=S.hard,f=S.soft,c=[];
+ const amb=S.ambiguity.some(a=>a.indexOf("大")===0);
+ if(amb&&h.capacity_l.min==null)c.push("big");
+ if(h.capacity_l.min==null&&h.capacity_l.max==null&&!amb)c.push("load");
+ if(h.price.min==null&&h.price.max==null)c.push("price");
+ if(h.laptop_fit_inch==null&&["日常通勤","校园通学"].includes(S.scene_hypothesis))c.push("lap");
+ if(!f.style.length)c.push("style");
+ return c.filter(k=>!asked.has(k)).slice(0,3)}
+
+function renderCards(){
+ document.getElementById("cards").innerHTML=CUR.map(k=>{
+  const d=CARDS[k],done=asked.has(k);
+  if(done)return `<div class="qc"><h4>${d.t}</h4><div class="why">已回答 ✓</div></div>`;
+  return `<div class="qc"><h4>${H(d.t)}</h4><div class="why">${H(d.w)}</div><div class="opts">`+
+   d.o.map((o,i)=>`<button class="opt" onclick="pick('${k}',${i})">${H(o[0])}</button>`).join("")+
+   `<button class="opt skip" onclick="pick('${k}',-1)">不确定，你帮我选</button></div></div>`}).join("")}
+
+function pick(k,i){
+ if(i<0){const[lab,fn]=SKIPDEF[k];fn();S.assumptions.push(lab)}
+ else CARDS[k].o[i][1]();
+ asked.add(k);
+ if(CUR.every(x=>asked.has(x)))step();else renderCards()}
+
+/* ---------- 流程控制 ---------- */
+function show(id){["p1","p2","p3","p4"].forEach(x=>
+ document.getElementById(x).classList.toggle("hid",x!==id))}
+function go(){
+ const t=document.getElementById("q").value.trim();
+ if(!t){document.getElementById("q").focus();return}
+ S=parse(t);S.assumptions=[];round=0;asked=new Set();ADJNOTE="";
+ renderConfirm();show("p2")}
+function next(){step()}
+function step(){
+ const c=pickCards();
+ if(c.length&&round<2){round++;CUR=c;
+  document.getElementById("l3")
+   .textContent=round==1?"再确认两件事就能出结果（第 1 / 最多 2 轮）":"最后一轮（第 2 / 最多 2 轮）";
+  renderCards();show("p3")}
+ else results()}
+function reset(){show("p1");document.getElementById("q").value=""}
+/* ---------- 检索：硬筛完全由代码执行，不经过模型 ---------- */
+const WPR={"泼水":1,"防雨":2,"全防水":3};
+const CK={
+ price:(p,h)=>(h.price.min==null||p.price>=h.price.min)&&(h.price.max==null||p.price<=h.price.max),
+ capacity_l:(p,h)=>(h.capacity_l.min==null||p.capacity_l>=h.capacity_l.min)&&
+  (h.capacity_l.max==null||p.capacity_l<=h.capacity_l.max),
+ self_weight_kg:(p,h)=>h.self_weight_kg.max==null||p.self_weight_kg<=h.self_weight_kg.max,
+ laptop_fit_inch:(p,h)=>h.laptop_fit_inch==null||p.laptop_fit_inch>=h.laptop_fit_inch,
+ cabin_ok:(p,h)=>!h.cabin_ok||p.cabin_ok===1,
+ waterproof_level:(p,h)=>h.waterproof_level==null||p.waterproof_level>=WPR[h.waterproof_level]};
+const LAB={price:"预算",capacity_l:"容量",self_weight_kg:"重量上限",
+ laptop_fit_inch:"电脑尺寸",cabin_ok:"可登机",waterproof_level:"防水等级"};
+function active(h){return Object.keys(CK).filter(k=>
+ k=="price"?(h.price.min!=null||h.price.max!=null):
+ k=="capacity_l"?(h.capacity_l.min!=null||h.capacity_l.max!=null):
+ k=="self_weight_kg"?h.self_weight_kg.max!=null:(h[k]!=null&&h[k]!==false))}
+const filt=(h,keys)=>DB.filter(p=>(keys||active(h)).every(k=>CK[k](p,h)));
+
+/* 冲突归因：找出是哪几条约束凑不到一起，并给出可执行的松绑选项 */
+function conflict(h){
+ const A=active(h),opts=[];
+ A.forEach(k=>{const n=filt(h,A.filter(x=>x!=k)).length;
+  if(n>0)opts.push({drop:[k],n})});
+ if(opts.length<2)for(let i=0;i<A.length;i++)for(let j=i+1;j<A.length;j++){
+  const n=filt(h,A.filter(x=>x!=A[i]&&x!=A[j])).length;
+  if(n>0&&!opts.some(o=>o.drop.length==1&&(o.drop[0]==A[i]||o.drop[0]==A[j])))
+   opts.push({drop:[A[i],A[j]],n})}
+ opts.sort((a,b)=>a.drop.length-b.drop.length||b.n-a.n);
+ let fact="";
+ const mn=(sub,k)=>sub.length?Math.min(...sub.map(p=>p[k])):null;
+ const byLap=h.laptop_fit_inch?DB.filter(p=>p.laptop_fit_inch>=h.laptop_fit_inch):[];
+ const byCap=h.capacity_l.min?DB.filter(p=>p.capacity_l>=h.capacity_l.min):[];
+ if(h.laptop_fit_inch&&h.self_weight_kg.max&&byLap.length)
+  fact=`能装 ${h.laptop_fit_inch} 寸电脑的包，要有背板和骨架撑住，自重最低也在 ${mn(byLap,"self_weight_kg")} kg 左右，这是结构决定的。`;
+ else if(h.laptop_fit_inch&&h.price.max&&byLap.length)
+  fact=`能装 ${h.laptop_fit_inch} 寸电脑的包，目前最低价是 ${mn(byLap,"price")} 元。`;
+ else if(h.capacity_l.min&&h.self_weight_kg.max&&byCap.length)
+  fact=`${h.capacity_l.min} L 以上的包，自重最低在 ${mn(byCap,"self_weight_kg")} kg 左右。`;
+ else if(h.capacity_l.min&&h.price.max&&byCap.length)
+  fact=`${h.capacity_l.min} L 以上的包，容量上去之后用料和骨架都要加，目前最低价是 ${mn(byCap,"price")} 元。`;
+ return{opts:opts.slice(0,2),fact,A}}
+function relax(keys){
+ keys.forEach(k=>{if(k=="price")S.hard.price={min:null,max:null};
+  else if(k=="capacity_l")S.hard.capacity_l={min:null,max:null};
+  else if(k=="self_weight_kg")S.hard.self_weight_kg.max=null;
+  else S.hard[k]=null});
+ results()}
+/* ---------- 排序：软偏好加权，同样由代码完成 ---------- */
+const SCST={"日常通勤":"通勤简约","校园通学":"学院日系","短途差旅":"户外机能",
+ "户外徒步":"户外机能","运动健身":"户外机能"};
+function score(p){const f=S.soft,h=S.hard;let s=0;
+ s+=p.breathability*(f.breathability_boost?2:0.5);
+ s+=p.compartment_richness*(f.compartment_boost?1.5:0.35);
+ if(f.style.length)s+=f.style.includes(p.style)?3.5:0;
+ if(f.color_family.length&&f.color_family.includes(p.color_family))s+=1.2;
+ if(SCST[S.scene_hypothesis]===p.style)s+=1;
+ if(h.self_weight_kg.max)s+=(1-p.self_weight_kg/1.4)*1.5;
+ s+=(1-p.price/900)*0.8;
+ return s}
+
+/* ---------- 推荐理由：每条事实都挂字段引用，可被程序校验 ---------- */
+function hits(p){const h=S.hard,f=S.soft,o=[];
+ const a=(t,fd)=>o.push({t,fd});
+ if(f.breathability_boost)a(`背板是${p.back_system}，透气性 ${p.breathability}/5，背部不直接贴死`,"back_system, breathability");
+ if(h.self_weight_kg.max)a(`自重 ${p.self_weight_kg} kg，在你说的 ${h.self_weight_kg.max} kg 以内`,"self_weight_kg");
+ if(h.capacity_l.min||h.capacity_l.max)a(`容量 ${p.capacity_l} L，${cap2human(p.capacity_l)}`,"capacity_l");
+ if(h.laptop_fit_inch)a(`有独立电脑仓，最大支持 ${p.laptop_fit_inch} 寸`,"laptop_fit_inch");
+ if(h.price.min||h.price.max)a(`${p.price} 元，落在你的预算区间里`,"price");
+ if(f.style.length&&f.style.includes(p.style))a(`风格是${p.style}，和你选的一致`,"style");
+ if(h.waterproof_level)a(`面料${WP[p.waterproof_level]}`,"waterproof_level");
+ if(f.compartment_boost)a(`分隔丰富度 ${p.compartment_richness}/5`,"compartment_richness");
+ if(h.cabin_ok)a("尺寸符合登机随身规格","cabin_ok");
+ if(!o.length)a(`${p.capacity_l} L / ${p.self_weight_kg} kg / ${p.style}`,"capacity_l, self_weight_kg, style");
+ return o}
+function cap2human(c){return c<16?"装水杯雨伞充电宝够用，装电脑会紧":
+ c<23?"一台 14 寸电脑加 A4 本子和一件外套，当天通勤够用":
+ c<30?"书和教材装得下，通勤加轻度过夜可以":
+ c<36?"两三天短途的衣物能装进去":"接近小行李箱的量"}
+function cost(p,top){
+ const N=top.length,W=N>1?`这 ${N} 款里`:"",
+  mxp=Math.max(...top.map(x=>x.price)),mnp=Math.min(...top.map(x=>x.price)),
+  mxw=Math.max(...top.map(x=>x.self_weight_kg)),mnw=Math.min(...top.map(x=>x.self_weight_kg)),
+  mnc=Math.min(...top.map(x=>x.capacity_l));
+ if(N>1&&p.price===mxp&&mxp>mnp)return `${W}最贵，比最便宜的那款多 ${mxp-mnp} 元`;
+ if(N>1&&p.self_weight_kg===mxw&&mxw>mnw)
+  return `${W}最重，比最轻的那款多 ${Math.round((mxw-mnw)*1000)} 克`;
+ if(p.compartment_richness<=2)
+  return `内部几乎没有分隔（${p.compartment_richness}/5），基本是一个主仓，零碎东西容易乱`;
+ if(p.waterproof_level===0)return "面料没有做防水处理，下雨需要另外加包套";
+ if(N>1&&p.capacity_l===mnc)return `${W}容量最小（${p.capacity_l} L），装满之后没有余量`;
+ if(p.breathability<=2)return `背板是${p.back_system}，夏天贴背会闷`;
+ if(p.self_weight_kg>=1.1)return `自重 ${p.self_weight_kg} kg，空包就有分量，不适合每天背`;
+ return `容量 ${p.capacity_l} L 属于中等，以后东西变多会偏紧`}
+function rejTxt(r,best){const d=[];
+ if(r.price>best.price)d.push(`贵 ${r.price-best.price} 元`);
+ if(r.self_weight_kg>best.self_weight_kg)
+  d.push(`自重多 ${Math.round((r.self_weight_kg-best.self_weight_kg)*1000)} 克`);
+ if(S.soft.breathability_boost&&r.breathability<best.breathability)
+  d.push(`透气性 ${r.breathability}/5，低于 ${best.breathability}/5`);
+ if(S.soft.compartment_boost&&r.compartment_richness<best.compartment_richness)
+  d.push(`分隔 ${r.compartment_richness}/5，少于 ${best.compartment_richness}/5`);
+ if(S.soft.style.length&&!S.soft.style.includes(r.style))
+  d.push(`风格是${r.style}，不是你选的${S.soft.style.join("/")}`);
+ if(r.capacity_l<best.capacity_l)d.push(`容量少 ${best.capacity_l-r.capacity_l} L`);
+ return d.length?d.slice(0,3).join("、"):"各项都接近，只是综合加权分略低"}
+
+function results(){
+ show("p4");
+ const h=S.hard,A=active(h);
+ document.getElementById("json").textContent=JSON.stringify(S,null,2);
+ let pool=filt(h);
+ /* 候选集为空：归因到具体约束，给可点击的松绑选项，绝不返回空结果页 */
+ if(!pool.length){
+  const{opts,fact}=conflict(h);
+  document.getElementById("l4").textContent="这几条凑不到一起，但不是你的问题";
+  document.getElementById("conflict").innerHTML=
+   `<div class="cf"><h4>${H(A.map(k=>LAB[k]).join(" + "))} 这组条件，现有商品里没有能同时满足的</h4>`+
+   `<p>${H(fact||"这几条约束在当前商品库里互相排斥。")}替你准备了两个方向，点一下就换：</p>`+
+   (opts.map(o=>`<button class="btn sm" style="margin:0 8px 8px 0" `+
+    `onclick="relax(${JSON.stringify(o.drop).replace(/"/g,"&quot;")})">放宽${
+    o.drop.map(k=>LAB[k]).join("和")} → 有 ${o.n} 款可选</button>`).join(""))+
+   `<button class="btn gh sm" onclick="reset()">重新描述</button></div>`;
+  document.getElementById("list").innerHTML="";
+  document.getElementById("rejected").innerHTML="";return}
+ /* 候选不足 3 个：不偷偷放宽用户的条件，把结果全给出来，再提供可点击的松绑选项 */
+ let few="";
+ if(pool.length<3){
+  const o=A.map(k=>({drop:[k],n:filt(h,A.filter(x=>x!=k)).length}))
+   .filter(x=>x.n>pool.length).sort((a,b)=>b.n-a.n).slice(0,2);
+  few=`<div class="cf"><h4>只有 ${pool.length} 款同时满足你的全部条件</h4>`+
+   `<p>下面就是全部结果。我没有替你放宽任何条件——要不要多看几款，由你决定：</p>`+
+   o.map(x=>`<button class="btn sm" style="margin:0 8px 8px 0" onclick="relax(${
+    JSON.stringify(x.drop).replace(/"/g,"&quot;")})">放宽${LAB[x.drop[0]]} → ${x.n} 款</button>`).join("")+
+   `</div>`}
+ const sorted=pool.map(p=>({p,s:score(p)})).sort((a,b)=>b.s-a.s);
+ const top=sorted.slice(0,3).map(x=>x.p),rej=sorted[3]?sorted[3].p:null;
+ document.getElementById("l4").textContent=pool.length>3?
+  `为你挑了 3 款（共 ${pool.length} 款满足硬条件）`:`满足条件的全部 ${pool.length} 款`;
+ let nt=few;
+ if(ADJNOTE)nt+=`<div class="un">${H(ADJNOTE)}</div>`;
+ if(S.assumptions.length)nt+=`<div class="note">有几项你没定，我先${H(S.assumptions.join("、"))}挑的，不对可以用下面的按钮调。</div>`;
+ document.getElementById("conflict").innerHTML=nt;
+ const RK=["最推荐","备选","也可以看看"],used=new Set();
+ document.getElementById("list").innerHTML=top.map((p,i)=>{
+  const hs=hits(p),flds=[...new Set(hs.map(x=>x.fd).join(", ").split(", "))];
+  return `<div class="prod${i?"":" one"}">
+   <div class="ph"><div><span class="pn">${H(p.name)}</span>
+     <span class="rk">${RK[i]}</span>
+     <div class="spec">${H(p.brand)} ｜ ${p.capacity_l} L ｜ ${p.self_weight_kg} kg ｜ ${
+      p.laptop_fit_inch?p.laptop_fit_inch+" 寸电脑仓":"无电脑仓"} ｜ ${H(p.back_system)} ｜ ${
+      H(p.material)} ｜ ${H(p.color_family)} ｜ ${WP[p.waterproof_level]}</div></div>
+     <div class="pp">¥${p.price}</div></div>
+   <div class="concl">${H(oneLine(p,i,top,used))}</div>
+   ${hs.map(x=>`<div class="hit">${H(x.t)} <code>${H(x.fd)}</code></div>`).join("")}
+   <div class="cost"><b>需要接受的代价：</b>${H(cost(p,top))}</div>
+   <details class="dbg"><summary>▸ 字段引用清单（可被程序校验）</summary>
+    <pre>${H(JSON.stringify(flds))}</pre></details></div>`}).join("");
+ document.getElementById("rejected").innerHTML=rej?
+  `<div class="rej"><b>为什么没推「${H(rej.name)}」（¥${rej.price}）：</b>它也满足了你的硬条件，`+
+  `但${H(rejTxt(rej,top[0]))}。如果这几点你其实不在意，它是第四顺位。</div>`:"";
+}
+function oneLine(p,i,top,used){
+ const f=S.soft,N=top.length;
+ const best=(k,d)=>N>1&&p[k]===(d>0?Math.max(...top.map(x=>x[k])):Math.min(...top.map(x=>x[k])));
+ const cand=[];
+ if(f.breathability_boost&&best("breathability",1))cand.push(["bre","背板透气做得最足，夏天背不闷"]);
+ if(best("self_weight_kg",-1))cand.push(["w",`这几款里最轻的，只有 ${p.self_weight_kg} kg`]);
+ if(best("price",-1))cand.push(["p","同样满足条件的里面最便宜"]);
+ if(f.compartment_boost&&best("compartment_richness",1))cand.push(["cmp","分隔最细，东西各归各位"]);
+ if(best("capacity_l",1))cand.push(["cap",`最能装的一款，${p.capacity_l} L`]);
+ if(f.style.length&&f.style.includes(p.style))cand.push(["st","风格最贴你选的那一种"]);
+ for(const[k,t]of cand)if(!used.has(k)){used.add(k);return t}
+ return ["综合最均衡的一款","另一种取舍方向","再多一个参考"][i]||"再多一个参考"}
+
+/* ---------- 单维度微调：只动一个条件，其余保持不变 ----------
+   取「比现有结果更极端的下一档真实数值」作为新阈值，保证点一次一定有结果，
+   而不是简单地把阈值按比例收紧——那样很容易一次点空。*/
+let ADJNOTE="";
+function adj(k){const h=S.hard,A=active(h),pool=filt(h);ADJNOTE="";
+ if(k=="light"){
+  const cm=pool.length?Math.min(...pool.map(p=>p.self_weight_kg)):Infinity;
+  const c=filt(h,A.filter(x=>x!="self_weight_kg")).map(p=>p.self_weight_kg)
+   .filter(w=>w<cm).sort((a,b)=>b-a);
+  if(c.length)h.self_weight_kg.max=c[0];
+  else ADJNOTE="其他条件不变的前提下，已经没有更轻的了。想更轻就得松开别的条件。"}
+ if(k=="cheap"){
+  const cm=pool.length?Math.min(...pool.map(p=>p.price)):Infinity;
+  const c=filt(h,A.filter(x=>x!="price")).map(p=>p.price).filter(v=>v<cm).sort((a,b)=>b-a);
+  if(c.length)h.price={min:null,max:c[0]};
+  else ADJNOTE="其他条件不变的前提下，已经没有更便宜的了。"}
+ if(k=="big"){
+  const cm=pool.length?Math.max(...pool.map(p=>p.capacity_l)):0;
+  const c=filt(h,A.filter(x=>x!="capacity_l"&&x!="self_weight_kg")).map(p=>p.capacity_l)
+   .filter(v=>v>cm).sort((a,b)=>a-b);
+  if(c.length){const hadW=h.self_weight_kg.max!=null;
+   h.capacity_l={min:c[0],max:null};h.self_weight_kg.max=null;
+   if(hadW)ADJNOTE="容量上去之后自重一定会涨，所以我同时放开了重量上限。"}
+  else ADJNOTE="其他条件不变的前提下，已经是最能装的了。"}
+ if(k=="style"){const o=["通勤简约","户外机能","学院日系","街头潮流"];
+  S.soft.style=[o[(o.indexOf(S.soft.style[0])+1)%4]]}
+ results()}
+
+/* ---------- 初始化 ---------- */
+document.getElementById("egs").innerHTML=EGS.map(e=>
+ `<button class="eg" onclick="document.getElementById('q').value=this.textContent;go()">${H(e)}</button>`).join("");
+document.getElementById("cnt").textContent=DB.length;
+document.getElementById("q").addEventListener("keydown",e=>{
+ if((e.metaKey||e.ctrlKey)&&e.key=="Enter")go()});
+</script>
+</body>
+</html>
